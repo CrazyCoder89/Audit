@@ -1,0 +1,35 @@
+ID,User ID,Action,Resource Type,Resource ID,Details,IP Address,Timestamp
+34,,user.login_failed,,,"{""email"": ""admin@audit.com""}",127.0.0.1,2026-02-24T11:26:25.228733+05:30
+33,1,document.list,document,,"{""role"": ""admin""}",127.0.0.1,2026-02-24T11:25:51.080611+05:30
+32,1,user.login,user,1,"{""email"": ""admin@audit.com""}",127.0.0.1,2026-02-24T11:25:22.109148+05:30
+31,1,document.list,document,,"{""role"": ""admin""}",127.0.0.1,2026-02-24T10:59:00.746078+05:30
+30,1,document.list,document,,"{""role"": ""admin""}",127.0.0.1,2026-02-24T10:57:52.723801+05:30
+29,1,document.list,document,,"{""role"": ""admin""}",127.0.0.1,2026-02-24T10:57:27.589054+05:30
+28,1,document.list,document,,"{""role"": ""admin""}",127.0.0.1,2026-02-24T10:57:17.089755+05:30
+27,1,document.list,document,,"{""role"": ""admin""}",127.0.0.1,2026-02-24T10:56:56.749879+05:30
+26,1,user.login,user,1,"{""email"": ""admin@audit.com""}",127.0.0.1,2026-02-24T10:56:52.300765+05:30
+25,2,document.list,document,,"{""role"": ""auditor""}",127.0.0.1,2026-02-24T10:48:40.058254+05:30
+24,2,document.list,document,,"{""role"": ""auditor""}",127.0.0.1,2026-02-24T10:48:21.641071+05:30
+23,2,document.list,document,,"{""role"": ""auditor""}",127.0.0.1,2026-02-24T10:48:08.647624+05:30
+22,2,user.login,user,2,"{""email"": ""shahkrish501@gmail.com""}",127.0.0.1,2026-02-24T10:48:04.213317+05:30
+21,2,user.register,user,2,"{""email"": ""shahkrish501@gmail.com"", ""role"": ""auditor""}",127.0.0.1,2026-02-24T10:47:33.075141+05:30
+20,1,document.list,document,,"{""role"": ""admin""}",127.0.0.1,2026-02-24T10:45:00.054186+05:30
+19,1,document.list,document,,"{""role"": ""admin""}",127.0.0.1,2026-02-24T10:44:57.079805+05:30
+18,1,document.list,document,,"{""role"": ""admin""}",127.0.0.1,2026-02-24T10:44:09.401857+05:30
+17,1,document.list,document,,"{""role"": ""admin""}",127.0.0.1,2026-02-24T10:42:20.324185+05:30
+16,1,document.list,document,,"{""role"": ""admin""}",127.0.0.1,2026-02-24T10:41:55.231885+05:30
+15,1,document.ask,document,2,"{""question"": ""what is the technologies used in this"", ""filename"": ""Patel_Property_Technical_Report.md.pdf""}",127.0.0.1,2026-02-24T10:41:27.165816+05:30
+14,1,document.list,document,,"{""role"": ""admin""}",127.0.0.1,2026-02-24T10:41:25.103233+05:30
+13,1,document.list,document,,"{""role"": ""admin""}",127.0.0.1,2026-02-24T10:41:24.853566+05:30
+12,1,document.list,document,,"{""role"": ""admin""}",127.0.0.1,2026-02-24T10:41:03.281142+05:30
+11,1,document.list,document,,"{""role"": ""admin""}",127.0.0.1,2026-02-24T10:40:40.545517+05:30
+10,1,document.list,document,,"{""role"": ""admin""}",127.0.0.1,2026-02-24T10:40:36.074561+05:30
+9,1,document.delete,document,1,"{""filename"": ""Patel_Property_Technical_Report.md.pdf""}",127.0.0.1,2026-02-24T10:40:33.919105+05:30
+8,1,document.list,document,,"{""role"": ""admin""}",127.0.0.1,2026-02-24T10:40:31.809786+05:30
+7,1,document.list,document,,"{""role"": ""admin""}",127.0.0.1,2026-02-24T10:40:24.628407+05:30
+6,1,document.list,document,,"{""role"": ""admin""}",127.0.0.1,2026-02-24T10:39:26.342308+05:30
+5,1,user.login,user,1,"{""email"": ""admin@audit.com""}",127.0.0.1,2026-02-24T10:39:21.159285+05:30
+4,1,task.create,task,1,"{""title"": ""Review Q3 Financial Report"", ""assigned_to"": 1}",127.0.0.1,2026-02-23T23:53:56.763113+05:30
+3,1,user.login,user,1,"{""email"": ""admin@audit.com""}",127.0.0.1,2026-02-23T23:53:45.099758+05:30
+2,1,user.login,user,1,"{""email"": ""admin@audit.com""}",127.0.0.1,2026-02-23T19:59:52.570856+05:30
+1,1,user.login,user,1,"{""email"": ""admin@audit.com""}",127.0.0.1,2026-02-23T19:49:44.985026+05:30

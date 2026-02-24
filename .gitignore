@@ -1,0 +1,35 @@
+# Virtual environment
+backend/venv/
+frontend/venv/
+
+# Environment variables (NEVER commit this)
+backend/.env
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# Uploaded files (can be large)
+backend/uploads/
+backend/vector_indexes/
+
+# Database
+*.db
+*.sqlite
+
+# FAISS indexes
+*.index
+*.pkl
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# VS Code
+.vscode/
+
+# Logs
+*.log
