@@ -10,6 +10,7 @@ class UserRole(str, enum.Enum):
     viewer = "viewer"   #viewer=read-only access to audit reports
     guest = "guest"    #limited access to view public audit reports
 
+
 class User(Base):
     __tablename__ = "users"
 
@@ -18,5 +19,12 @@ class User(Base):
     full_name = Column(String, nullable=False)
     hashed_password = Column(String, nullable=False)
     role = Column(Enum(UserRole), default=UserRole.viewer)
+    designation = Column(String, nullable=True)  
+    department = Column(String, nullable=True)
     is_active = Column(Boolean, default=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+    
+
+
+    

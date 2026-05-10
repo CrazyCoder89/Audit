@@ -94,66 +94,69 @@ def logout():
 # ─────────────────────────────────────────
 
 def render_sidebar():
-    """Renders the navigation sidebar with user info."""
     user = st.session_state.get("user", {})
     role = user.get("role", "viewer").upper()
     name = user.get("full_name", "User")
+    designation = user.get("designation", "")
 
     with st.sidebar:
-        # Logo and branding
         st.markdown("""
         <div style='text-align:center; padding: 1rem 0 2rem 0;'>
             <div style='font-size: 2rem;'>⚡</div>
-            <div style='font-family: monospace; font-size: 1.3rem; 
+            <div style='font-family: monospace; font-size: 1.3rem;
                         color: #00D4FF; font-weight: 700; letter-spacing: 3px;'>
                 AUDIT<span style='color:#E2E8F0'>SYS</span>
             </div>
-            <div style='font-size: 0.65rem; color: #4A5568; 
+            <div style='font-size: 0.65rem; color: #4A5568;
                         letter-spacing: 4px; margin-top: 2px;'>
                 COMPLIANCE INTELLIGENCE
             </div>
         </div>
         """, unsafe_allow_html=True)
 
-        # User badge
         role_colors = {
-            "ADMIN": "#FF4D6D",
-            "AUDITOR": "#00D4FF",
-            "VIEWER": "#48BB78",
-            "GUEST": "#718096"
+            "ADMIN": "#FF4D6D", "AUDITOR": "#00D4FF",
+            "VIEWER": "#48BB78", "GUEST": "#718096"
         }
         color = role_colors.get(role, "#718096")
+        desig_html = f"<div style='font-size:0.7rem; color:#718096; margin-top:2px;'>{designation}</div>" if designation else ""
+
         st.markdown(f"""
-        <div style='background: #0F1628; border: 1px solid #1E2D4D; 
+        <div style='background: #0F1628; border: 1px solid #1E2D4D;
                     border-radius: 8px; padding: 12px; margin-bottom: 20px;
                     border-left: 3px solid {color};'>
-            <div style='font-size: 0.7rem; color: #4A5568; 
+            <div style='font-size: 0.7rem; color: #4A5568;
                         letter-spacing: 2px;'>LOGGED IN AS</div>
-            <div style='font-size: 0.95rem; color: #E2E8F0; 
+            <div style='font-size: 0.95rem; color: #E2E8F0;
                         font-weight: 600; margin-top: 2px;'>{name}</div>
-            <div style='display: inline-block; background: {color}22; 
-                        color: {color}; font-size: 0.65rem; padding: 2px 8px; 
-                        border-radius: 4px; margin-top: 4px; 
+            {desig_html}
+            <div style='display: inline-block; background: {color}22;
+                        color: {color}; font-size: 0.65rem; padding: 2px 8px;
+                        border-radius: 4px; margin-top: 4px;
                         letter-spacing: 2px; font-weight: 700;'>{role}</div>
         </div>
         """, unsafe_allow_html=True)
 
-        # Navigation
         st.markdown("<div style='font-size: 0.65rem; color: #4A5568; letter-spacing: 3px; margin-bottom: 8px;'>NAVIGATION</div>", unsafe_allow_html=True)
         st.page_link("pages/1_dashboard.py", label="Dashboard", icon="▪")
         st.page_link("pages/2_documents.py", label="Documents", icon="▪")
         st.page_link("pages/3_ask_ai.py", label="Ask AI", icon="▪")
         st.page_link("pages/4_tasks.py", label="Tasks", icon="▪")
+        st.page_link("pages/7_search.py", label="Search", icon="▪")
+        st.page_link("pages/8_analytics.py", label="Analytics", icon="▪")
+        st.page_link("pages/9_profile.py", label="My Profile", icon="▪")
 
         if role in ["ADMIN", "AUDITOR"]:
             st.page_link("pages/5_audit_logs.py", label="Audit Logs", icon="▪")
+            st.page_link("pages/8_analytics.py", label="Analytics", icon="▪")
+
         if role == "ADMIN":
             st.page_link("pages/6_admin.py", label="Admin Panel", icon="▪")
+            st.page_link("pages/10_users.py", label="User Management", icon="▪")
 
         st.markdown("---")
         if st.button("⏻  Logout", use_container_width=True):
             logout()
-
 
 def metric_card(label: str, value, delta: str = None, color: str = "#00D4FF"):
     """Renders a styled metric card."""

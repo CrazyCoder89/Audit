@@ -158,10 +158,33 @@ else:
         </div>
         """, unsafe_allow_html=True)
 
+
         # Admin delete button
-        if role == "admin":
-            if st.button(f"✕ Delete", key=f"del_{doc_id}"):
-                result, status_code = api_delete(f"/documents/{doc_id}")
-                if status_code == 200:
-                    st.success("Deleted")
-                    st.rerun()
+        # Download button — visible to everyone with access
+
+        col_dl, col_del = st.columns([1, 1])
+        with col_dl:
+            token = st.session_state.get("token", "")
+            import requests as req
+            r = req.get(
+                f"http://localhost:8000/documents/{doc_id}/download",
+                headers={"Authorization": f"Bearer {token}"}
+            )
+            if r.ok:
+                st.download_button(
+                    label="⬇ DOWNLOAD",
+                    data=r.content,
+                    file_name=doc.get("filename", f"document_{doc_id}.pdf"),
+                    mime="application/pdf",
+                    key=f"dl_{doc_id}",
+                    use_container_width=True
+                )
+        with col_del:
+            if role == "admin":
+                if st.button(f"✕ Delete", key=f"del_{doc_id}"):
+                    result, status_code = api_delete(f"/documents/{doc_id}")
+                    if status_code == 200:
+                        st.success("Deleted")
+                        st.rerun()
+
+                        

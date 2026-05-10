@@ -47,7 +47,7 @@ require_login()
 render_sidebar()
 
 # ── Auto Refresh ──────────────────────────────────────────────────────────
-col_title, col_refresh = st.columns([4, 1])
+col_title, col_refresh, col_report = st.columns([3, 1, 1])
 with col_title:
     page_header("◈ DASHBOARD", "Real-time compliance intelligence overview")
 with col_refresh:
@@ -57,6 +57,25 @@ with col_refresh:
         st.caption(f"↻ Refreshing every 30s")
         time.sleep(30)
         st.rerun()
+with col_report:
+    st.markdown("<div style='height: 28px;'></div>", unsafe_allow_html=True)
+    if st.button("⬇ COMPLIANCE REPORT", use_container_width=True):
+        import requests as req
+        token = st.session_state.get("token", "")
+        r = req.get(
+            "http://localhost:8000/reports/compliance",
+            headers={"Authorization": f"Bearer {token}"}
+        )
+        if r.ok:
+            st.download_button(
+                label="📄 DOWNLOAD PDF",
+                data=r.content,
+                file_name=f"compliance_report_{datetime.now().strftime('%Y%m%d')}.pdf",
+                mime="application/pdf",
+                key="report_dl"
+            )
+        else:
+            st.error("Failed to generate report")
 
 # ── Fetch All Data ────────────────────────────────────────────────────────
 documents = api_get("/documents/") or []
@@ -497,8 +516,9 @@ if logs:
         color = action_colors.get(action, "#718096")
         timestamp = log.get("created_at", "")[:19].replace("T", " ")
         user_id = log.get("user_id", "sys")
-        resource = f"{log.get('resource_type', '')}#{log.get('resource_id', '')}" if log.get('resource_type') else ""
-
+        resource_type = log.get('resource_type', '')
+        resource_id = log.get('resource_id')
+        resource = f"{resource_type}#{resource_id}" if resource_type and resource_id else resource_type
         with feed_cols[i % 2]:
             st.markdown(f"""
             <div style='display: flex; align-items: center; padding: 8px 12px;

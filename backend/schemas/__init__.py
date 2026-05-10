@@ -4,6 +4,6 @@ from .user import UserCreate, UserResponse, Token, TokenData
 from .document import DocumentResponse, DocumentCategory
 from .audit_log import AuditLogResponse
 from .task import TaskResponse, TaskCreate,TaskUpdate,TaskResponse
-
+from .task_comment import CommentCreate,CommentResponse, CommentUpdate
 
 

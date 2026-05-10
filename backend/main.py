@@ -4,18 +4,41 @@ from routes.auth_routes import router as auth_router
 from routes.document_routes import router as document_router
 from routes.audit_routes import router as audit_router
 from routes.task_routes import router as task_router
+from routes.comment_routes import router as comment_router
+from tasks.weekly_report import start_scheduler
+from routes.report_routes import router as report_router
+from routes.analytics_routes import router as analytics_router
+from routes.meeting_routes import router as meeting_router
 
-# Creates all tables including the new documents table
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="AI Audit System", version="1.0.0")
+
+from fastapi.middleware.cors import CORSMiddleware
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173", "http://localhost:8501","http://localhost:3000"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 app.include_router(auth_router)
 app.include_router(document_router)
 app.include_router(audit_router)
 app.include_router(task_router)
+app.include_router(comment_router)
+app.include_router(report_router)
+app.include_router(analytics_router)
+app.include_router(meeting_router)
+
+@app.on_event("startup")
+async def startup_event():
+    start_scheduler()
 
 @app.get("/")
 def root():
     return {"message": "AI Audit System is running"}
+
 

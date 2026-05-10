@@ -128,6 +128,7 @@ with tab2:
     st.markdown("<div style='height: 1rem;'></div>", unsafe_allow_html=True)
     reg_name = st.text_input("FULL NAME", placeholder="John Smith", key="reg_name")
     reg_email = st.text_input("EMAIL", placeholder="john@company.com", key="reg_email")
+    reg_designation = st.text_input("DESIGNATION", placeholder="Senior Auditor", key="reg_desig")
     reg_password = st.text_input("PASSWORD", type="password", placeholder="••••••••", key="reg_pass")
     reg_role = st.selectbox("ROLE", ["viewer", "auditor", "admin"], key="reg_role")
     st.markdown("<div style='height: 0.5rem;'></div>", unsafe_allow_html=True)
@@ -139,8 +140,9 @@ with tab2:
                     "full_name": reg_name,
                     "email": reg_email,
                     "password": reg_password,
-                    "role": reg_role
-                })
+                    "role": reg_role,
+                    "designation": reg_designation
+                } )
                 if status == 200:
                     st.success("✓ Account created — sign in above")
                 else:

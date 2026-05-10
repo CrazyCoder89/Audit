@@ -171,3 +171,4 @@ streamlit run app.py
 ## 🌟 Star this repo if you find it useful!
 
 Made with ❤️ using Python, FastAPI, and open-source AI tools
+

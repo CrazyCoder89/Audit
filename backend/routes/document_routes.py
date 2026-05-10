@@ -11,8 +11,21 @@ from services.classifier import classify_document
 from services.rag_services import process_document, ask_document
 from services.audit_services import log_action
 from pydantic import BaseModel
-
+from fastapi.responses import FileResponse
 router = APIRouter(prefix="/documents", tags=["Documents"])
+
+def user_has_document_access(doc, current_user, db):
+    from models.task import Task
+    if current_user.role in ["admin", "auditor"]:
+        return True
+    if doc.uploaded_by == current_user.id:
+        return True
+    task = db.query(Task).filter(
+        Task.document_id == doc.id,
+        Task.assigned_to == current_user.id
+    ).first()
+    return task is not None
+
 
 UPLOAD_DIR = "uploads"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
@@ -88,7 +101,6 @@ def list_documents(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    # Log the listing action
     log_action(
         db=db,
         action="document.list",
@@ -100,9 +112,22 @@ def list_documents(
 
     if current_user.role in ["admin", "auditor"]:
         return db.query(Document).filter(Document.is_active == True).all()
+
+    # Viewers see own docs + docs linked to their assigned tasks
+    from models.task import Task
+    from sqlalchemy import or_
+    assigned_doc_ids = db.query(Task.document_id).filter(
+        Task.assigned_to == current_user.id,
+        Task.document_id != None
+    ).all()
+    assigned_doc_ids = [d[0] for d in assigned_doc_ids]
+
     return db.query(Document).filter(
-        Document.uploaded_by == current_user.id,
-        Document.is_active == True
+        Document.is_active == True,
+        or_(
+            Document.uploaded_by == current_user.id,
+            Document.id.in_(assigned_doc_ids)
+        )
     ).all()
 
 @router.get("/{document_id}", response_model=DocumentResponse)
@@ -120,9 +145,9 @@ def get_document(
     if not doc:
         raise HTTPException(status_code=404, detail="Document not found")
 
-    if current_user.role == "viewer" and doc.uploaded_by != current_user.id:
+    if not user_has_document_access(doc, current_user, db):
         raise HTTPException(status_code=403, detail="Access denied")
-
+    
     # Log the view
     log_action(
         db=db,
@@ -151,7 +176,7 @@ def ask_about_document(
     if not doc:
         raise HTTPException(status_code=404, detail="Document not found")
 
-    if current_user.role == "viewer" and doc.uploaded_by != current_user.id:
+    if not user_has_document_access(doc, current_user, db):
         raise HTTPException(status_code=403, detail="Access denied")
 
     if doc.status == DocumentStatus.pending:
@@ -201,4 +226,74 @@ def delete_document(
 
     return {"message": f"Document {document_id} deleted successfully"}
 
+@router.get("/search/query", response_model=list[DocumentResponse])
+def search_documents(
+    q: str,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """Full-text search across document filenames and categories."""
+    from sqlalchemy import or_
+    query = db.query(Document).filter(Document.is_active == True)
+
+    if current_user.role == "viewer":
+        from models.task import Task
+        from sqlalchemy import or_
+        assigned_doc_ids = db.query(Task.document_id).filter(
+            Task.assigned_to == current_user.id,
+            Task.document_id != None
+        ).all()
+        assigned_doc_ids = [d[0] for d in assigned_doc_ids]
+        query = query.filter(
+            or_(
+                Document.uploaded_by == current_user.id,
+                Document.id.in_(assigned_doc_ids)
+            )
+        )
+
+    results = query.filter(
+        or_(
+            Document.filename.ilike(f"%{q}%"),
+            Document.category.ilike(f"%{q}%"),
+            Document.status.ilike(f"%{q}%")
+        )
+    ).all()
+    return results
+
+@router.get("/{document_id}/download")
+def download_document(
+    document_id: int,
+    request: Request,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    doc = db.query(Document).filter(
+        Document.id == document_id,
+        Document.is_active == True
+    ).first()
+
+    if not doc:
+        raise HTTPException(status_code=404, detail="Document not found")
+
+    if not user_has_document_access(doc, current_user, db):
+        raise HTTPException(status_code=403, detail="Access denied")
+
+    if not os.path.exists(doc.file_path):
+        raise HTTPException(status_code=404, detail="File not found on disk")
+
+    log_action(
+        db=db,
+        action="document.download",
+        user_id=current_user.id,
+        resource_type="document",
+        resource_id=document_id,
+        details={"filename": doc.filename},
+        ip_address=request.client.host
+    )
+
+    return FileResponse(
+        path=doc.file_path,
+        filename=doc.filename,
+        media_type="application/pdf"
+    )
 
