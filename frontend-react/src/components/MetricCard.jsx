@@ -14,3 +14,6 @@ export default function MetricCard({ label, value, delta, color = '#00D4FF' }) {
     </div>
   )
 }
+
+
+
