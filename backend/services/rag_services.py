@@ -10,11 +10,22 @@ import os
 AI_ENGINE_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "ai_engine")
 sys.path.insert(0, AI_ENGINE_PATH)
 
-from ingestion.pdf_loader import load_pdf
+try:
+    from ai_engine.retrieval.vector_store import VectorStore
+    from ai_engine.ingestion.pdf_loader import load_pdf
+    from ai_engine.ingestion.chunker import chunk_documents
+    from ai_engine.embeddings.embeddings import get_embeddings
+    from ai_engine.rag.pipeline import generate_answer
+    RAG_AVAILABLE = True
+except Exception as e:
+    print(f"[RAG] Not available: {e}")
+    RAG_AVAILABLE = False
+
+"""from ingestion.pdf_loader import load_pdf
 from ingestion.chunker import chunk_pages
 from embeddings.embeddings import embed_chunks, embed_text
 from retrieval.vector_store import VectorStore
-from rag.pipeline import generate_answer
+from rag.pipeline import generate_answer"""
 
 # Where we store per-document FAISS indexes
 # Each document gets its own folder: vector_indexes/{document_id}/
@@ -30,6 +41,8 @@ def get_index_path(document_id: int) -> str:
 
 
 def process_document(file_path: str, document_id: int) -> dict:
+    if not RAG_AVAILABLE:
+        return {"status": "failed", "error": "RAG not available"}
     """
     Processes a PDF through the full RAG pipeline and saves the FAISS index.
     Called automatically when a document is uploaded.
@@ -77,6 +90,8 @@ def process_document(file_path: str, document_id: int) -> dict:
 
 
 def ask_document(document_id: int, question: str) -> dict:
+    if not RAG_AVAILABLE:
+        return {"answer": "AI engine not available on this deployment.", "sources": []}
     """
     Answers a question about a specific document using its saved FAISS index.
 

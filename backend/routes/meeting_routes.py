@@ -12,6 +12,8 @@ import json
 import asyncio
 from datetime import datetime, timezone
 from fastapi import APIRouter, Depends, HTTPException, WebSocket, WebSocketDisconnect
+from fastapi import UploadFile, File
+import tempfile
 from sqlalchemy.orm import Session
 from database import get_db
 from models.user import User
@@ -149,7 +151,7 @@ def save_transcript(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    """Save transcript chunk from frontend Whisper transcription."""
+    """Save transcript chunk from frontend Whisper transcription"""
     meeting = db.query(Meeting).filter(Meeting.id == meeting_id).first()
     if not meeting:
         raise HTTPException(status_code=404, detail="Meeting not found")
@@ -159,7 +161,65 @@ def save_transcript(
     db.commit()
     return {"message": "Transcript updated"}
 
+"""
+@router.post("/{meeting_id}/transcript")
+async def save_transcript(
+    meeting_id: int,
+    text: str = None,
+    audio: UploadFile = File(None),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    ......
+    Save transcript from:
+    1. direct text
+    2. audio file -> Groq Whisper transcription
+    ......
 
+    meeting = db.query(Meeting).filter(Meeting.id == meeting_id).first()
+
+    if not meeting:
+        raise HTTPException(status_code=404, detail="Meeting not found")
+
+    final_text = text
+
+    # ── AUDIO → GROQ WHISPER ─────────────────────────────
+    if audio:
+
+        # Save temporary audio file
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".webm") as tmp:
+            tmp.write(await audio.read())
+            tmp_path = tmp.name
+
+        # Send to Groq Whisper
+        with open(tmp_path, "rb") as audio_file:
+
+            whisper_response = groq_client.audio.transcriptions.create(
+                file=audio_file,
+                model="whisper-large-v3"
+            )
+
+        final_text = whisper_response.text
+
+        # Remove temp file
+        os.remove(tmp_path)
+
+    # ── SAVE TRANSCRIPT ─────────────────────────────────
+    if final_text:
+
+        existing = meeting.transcript or ""
+
+        meeting.transcript = (
+            existing + "\n" + final_text
+        )
+
+        db.commit()
+
+    return {
+        "message": "Transcript updated",
+        "text": final_text
+    }
+"""
 @router.get("/{meeting_id}/minutes", response_model=MinutesResponse)
 def get_minutes(
     meeting_id: int,
@@ -481,5 +541,9 @@ async def meeting_websocket(
             "participants": manager.get_participants(room_code)
         })
         print(f"[MEETING] User {user_id} left room {room_code}")
+
+
+
+
 
 
