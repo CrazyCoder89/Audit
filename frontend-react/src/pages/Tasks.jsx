@@ -4,6 +4,7 @@ import Layout from '../components/Layout.jsx'
 import PageHeader from '../components/PageHeader.jsx'
 import StatusBadge from '../components/StatusBadge.jsx'
 
+const BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000'
 const PRIORITY_COLORS = {
   critical: '#FF4D6D', high: '#F6AD55', medium: '#00D4FF', low: '#48BB78'
 }

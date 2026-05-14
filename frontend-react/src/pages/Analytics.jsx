@@ -7,7 +7,7 @@ import {
   BarChart, Bar, XAxis, YAxis, Tooltip,
   ResponsiveContainer, Cell
 } from 'recharts'
-
+const BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000'
 const SEVERITY_COLORS = { CRITICAL: '#FF4D6D', HIGH: '#F6AD55', MEDIUM: '#00D4FF', LOW: '#48BB78' }
 const SEVERITY_ICONS = { CRITICAL: '🔴', HIGH: '🟠', MEDIUM: '🟡', LOW: '🟢' }
 
@@ -49,7 +49,7 @@ export default function Analytics() {
     setLoading(true)
     try {
       const res = await axios.post(
-        `http://localhost:8000/analytics/suggest-tasks/${selectedDocId}`, {},
+        `${BASE}/analytics/suggest-tasks/${selectedDocId}`, {},
         { headers: authHeaders() }
       )
       setSuggestions(res.data)
@@ -61,7 +61,7 @@ export default function Analytics() {
 
   const createTask = async (task, days) => {
     const deadline = new Date(Date.now() + days * 86400000).toISOString()
-    await axios.post('http://localhost:8000/tasks/',
+    await axios.post(`${BASE}/tasks/`,
       { title: task.title, description: task.description, priority: task.priority, deadline, document_id: parseInt(selectedDocId) },
       { headers: authHeaders() }
     )

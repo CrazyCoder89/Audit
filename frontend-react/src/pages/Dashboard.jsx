@@ -9,6 +9,7 @@ import {
   LineChart, Line, Tooltip, ResponsiveContainer
 } from 'recharts'
 import axios from 'axios'
+const BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000'
 
 const COLORS = {
   pending: '#F6AD55', in_progress: '#00D4FF',
@@ -48,7 +49,7 @@ export default function Dashboard() {
 
   const downloadReport = async () => {
   try {
-    const res = await axios.get('http://localhost:8000/reports/compliance',
+    const res = await axios.get('${BASE}/reports/compliance',
       { headers: authHeaders(), responseType: 'blob' }
     )
     const url = URL.createObjectURL(res.data)

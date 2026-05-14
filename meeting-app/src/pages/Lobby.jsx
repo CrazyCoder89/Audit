@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
-
+const API = import.meta.env.VITE_API_URL || 'http://localhost:8000'
+const WS_BASE = import.meta.env.VITE_WS_URL || 'ws://localhost:8000'
 const API = 'http://localhost:8000'
 
 export default function Lobby() {
@@ -265,5 +266,4 @@ export default function Lobby() {
     </div>
   )
 }
-
 

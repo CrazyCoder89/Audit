@@ -4,7 +4,7 @@ import Layout from '../components/Layout.jsx'
 import PageHeader from '../components/PageHeader.jsx'
 import StatusBadge from '../components/StatusBadge.jsx'
 import axios from 'axios'
-
+const BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000'
 const CAT_COLORS = {
   financial: '#48BB78', legal: '#F6AD55',
   compliance: '#00D4FF', hr: '#9F7AEA', unknown: '#718096'
@@ -36,7 +36,7 @@ export default function Documents() {
     const form = new FormData()
     form.append('file', file)
     try {
-      await axios.post('http://localhost:8000/documents/upload', form,
+      await axios.post('${BASE}/documents/upload', form,
         { headers: { ...authHeaders(), 'Content-Type': 'multipart/form-data' } })
       setMsg('✓ Uploaded — processing in background')
       fetch()
@@ -50,7 +50,7 @@ export default function Documents() {
   const download = async (doc) => {
     try {
       const res = await axios.get(
-        `http://localhost:8000/documents/${doc.id}/download`,
+        `${BASE}/documents/${doc.id}/download`,
         { headers: authHeaders(), responseType: 'blob' }
       )
       const url = URL.createObjectURL(res.data)

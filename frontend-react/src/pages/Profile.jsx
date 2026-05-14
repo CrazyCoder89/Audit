@@ -3,7 +3,7 @@ import { useAuth } from '../context/AuthContext.jsx'
 import Layout from '../components/Layout.jsx'
 import PageHeader from '../components/PageHeader.jsx'
 import axios from 'axios'
-
+const BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000'
 const ROLE_COLORS = { admin: '#FF4D6D', auditor: '#00D4FF', viewer: '#48BB78', guest: '#718096' }
 
 export default function Profile() {
@@ -29,7 +29,7 @@ export default function Profile() {
     if (passForm.new_password !== passForm.confirm) { setPassMsg('✗ Passwords do not match'); return }
     if (passForm.new_password.length < 6) { setPassMsg('✗ Min 6 characters'); return }
     try {
-      const res = await axios.post('http://localhost:8000/auth/me/change-password',
+      const res = await axios.post('${BASE}/auth/me/change-password',
         { current_password: passForm.current_password, new_password: passForm.new_password },
         { headers: authHeaders() })
       setPassMsg('✓ Password changed')

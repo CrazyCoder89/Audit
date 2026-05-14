@@ -3,7 +3,7 @@ import { useAuth } from '../context/AuthContext.jsx'
 import Layout from '../components/Layout.jsx'
 import PageHeader from '../components/PageHeader.jsx'
 import axios from 'axios'
-
+const BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000'
 const ACTION_COLORS = {
   'user.login': '#48BB78', 'user.login_failed': '#FF4D6D',
   'user.register': '#00D4FF', 'document.upload': '#00D4FF',
@@ -27,7 +27,7 @@ export default function AuditLogs() {
   }, [filterAction, filterResource, limit])
 
   const exportCSV = async () => {
-    const res = await axios.get('http://localhost:8000/audit/export',
+    const res = await axios.get('${BASE}/audit/export',
       { headers: authHeaders(), responseType: 'blob' })
     const url = URL.createObjectURL(res.data)
     const a = document.createElement('a')

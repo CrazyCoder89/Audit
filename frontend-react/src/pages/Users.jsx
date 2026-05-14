@@ -3,7 +3,7 @@ import { useAuth } from '../context/AuthContext.jsx'
 import Layout from '../components/Layout.jsx'
 import PageHeader from '../components/PageHeader.jsx'
 import axios from 'axios'
-
+const BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000'
 const ROLE_COLORS = { admin: '#FF4D6D', auditor: '#00D4FF', viewer: '#48BB78', guest: '#718096' }
 const DEPARTMENTS = ['', 'Finance & Accounting', 'Legal & Compliance', 'Human Resources',
   'Information Technology', 'Operations', 'Risk Management', 'Internal Audit', 'Executive Management', 'Other']
@@ -34,7 +34,7 @@ export default function Users() {
   const createUser = async () => {
     if (!form.full_name || !form.email || !form.password) { setMsg('✗ Fill required fields'); return }
     try {
-      const res = await axios.post('http://localhost:8000/auth/users', form,
+      const res = await axios.post('${BASE}/auth/users', form,
         { headers: authHeaders() })
       if (res.status === 200) { setMsg('✓ User created'); setShowCreate(false); fetch() }
     } catch (e) {
@@ -44,7 +44,7 @@ export default function Users() {
   }
 
   const updateUser = async (userId, data) => {
-    await axios.patch(`http://localhost:8000/auth/users/${userId}`, data,
+    await axios.patch(`${BASE}/auth/users/${userId}`, data,
       { headers: authHeaders() })
     fetch()
   }

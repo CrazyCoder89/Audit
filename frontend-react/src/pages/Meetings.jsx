@@ -3,7 +3,7 @@ import PageHeader from '../components/PageHeader.jsx'
 import { useAuth } from '../context/AuthContext.jsx'
 import { useState, useEffect } from 'react'
 import axios from 'axios'
-
+const BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000'
 export default function Meetings() {
   const { apiGet, authHeaders, user } = useAuth()
   const [meetings, setMeetings] = useState([])
@@ -23,7 +23,7 @@ export default function Meetings() {
     if (!title.trim()) { setMsg('✗ Enter meeting title'); return }
     setLoading(true)
     try {
-      const res = await axios.post('http://localhost:8000/meetings/',
+      const res = await axios.post('${BASE}/meetings/',
         { title },
         { headers: authHeaders() }
       )
@@ -46,7 +46,7 @@ export default function Meetings() {
     if (!joinCode.trim()) { setMsg('✗ Enter room code'); return }
     try {
       const res = await axios.get(
-        `http://localhost:8000/meetings/${joinCode.toUpperCase()}`,
+        `${BASE}/meetings/${joinCode.toUpperCase()}`,
         { headers: authHeaders() }
       )
       if (res.data.status === 'ended') {
