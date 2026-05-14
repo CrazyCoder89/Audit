@@ -110,16 +110,11 @@ export default function Layout({ children }) {
           <div style={{ fontSize: '0.6rem', color: '#4A5568', letterSpacing: 3, padding: '12px 16px 8px' }}>
             TOOLS
           </div>
-          <div
-  onClick={() =>
-    window.open("http://localhost:5173", "_blank")
-  }
-  style={{
-    cursor: 'pointer'
-  }}
->
-   🎥 Meetings
-</div>
+          <div style={s.navItem(false)}
+            onClick={() => window.open('http://localhost:5173', '_blank')}>
+            <Video size={16} />
+            Meetings
+          </div>
         </div>
 
         <button style={s.logoutBtn} onClick={logout}>

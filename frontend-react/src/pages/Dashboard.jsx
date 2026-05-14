@@ -8,6 +8,7 @@ import {
   PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis,
   LineChart, Line, Tooltip, ResponsiveContainer
 } from 'recharts'
+import axios from 'axios'
 
 const COLORS = {
   pending: '#F6AD55', in_progress: '#00D4FF',
@@ -26,7 +27,7 @@ const ACTION_COLORS = {
 }
 
 export default function Dashboard() {
-  const { apiGet, user } = useAuth()
+  const { apiGet, user, authHeaders } = useAuth()
   const [documents, setDocuments] = useState([])
   const [tasks, setTasks] = useState([])
   const [logs, setLogs] = useState([])
@@ -45,6 +46,22 @@ export default function Dashboard() {
     setLoading(false)
   }
 
+  const downloadReport = async () => {
+  try {
+    const res = await axios.get('http://localhost:8000/reports/compliance',
+      { headers: authHeaders(), responseType: 'blob' }
+    )
+    const url = URL.createObjectURL(res.data)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `compliance_report_${new Date().toISOString().slice(0,10)}.pdf`
+    a.click()
+    URL.revokeObjectURL(url)
+  } catch (e) {
+    console.error('Report generation failed', e)
+    alert('Failed to generate report. Make sure you are logged in as Admin or Auditor.')
+  }
+}
   useEffect(() => { fetchAll() }, [])
 
   useEffect(() => {
@@ -128,21 +145,27 @@ export default function Dashboard() {
     <Layout>
       {/* Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 24 }}>
-        <PageHeader title="◈ DASHBOARD" subtitle="Real-time compliance intelligence overview" />
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 8 }}>
-          <label style={{ color: '#4A5568', fontSize: 12, fontFamily: 'monospace', cursor: 'pointer' }}>
-            <input type="checkbox" checked={autoRefresh}
-              onChange={e => setAutoRefresh(e.target.checked)}
-              style={{ marginRight: 6 }} />
-            AUTO REFRESH
-          </label>
-          <button onClick={fetchAll} style={{
-            background: '#1E2D4D', border: 'none', borderRadius: 6,
-            color: '#00D4FF', padding: '6px 14px', cursor: 'pointer',
-            fontFamily: 'monospace', fontSize: 12
-          }}>↻ REFRESH</button>
+          <PageHeader title="◈ DASHBOARD" subtitle="Real-time compliance intelligence overview" />
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginTop: 8, flexWrap: 'wrap' }}>
+            <label style={{ color: '#4A5568', fontSize: 12, fontFamily: 'monospace', cursor: 'pointer' }}>
+              <input type="checkbox" checked={autoRefresh}
+                onChange={e => setAutoRefresh(e.target.checked)}
+                style={{ marginRight: 6 }} />
+              AUTO REFRESH
+            </label>
+            <button onClick={fetchAll} style={{
+              background: '#1E2D4D', border: 'none', borderRadius: 6,
+              color: '#00D4FF', padding: '6px 14px', cursor: 'pointer',
+              fontFamily: 'monospace', fontSize: 12
+            }}>↻ REFRESH</button>
+            <button onClick={downloadReport} style={{
+              background: 'linear-gradient(135deg,#00D4FF,#0088AA)',
+              color: '#0A0E1A', border: 'none', borderRadius: 6,
+              padding: '7px 16px', cursor: 'pointer',
+              fontFamily: 'monospace', fontSize: 12, fontWeight: 700, letterSpacing: 1
+            }}>⬇ COMPLIANCE REPORT</button>
+          </div>
         </div>
-      </div>
 
       {/* Top row — compliance score + metrics */}
       <div style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr 1fr 1fr 1fr', gap: 16, marginBottom: 20 }}>
@@ -340,5 +363,7 @@ export default function Dashboard() {
     </Layout>
   )
 }
+
+
 
 

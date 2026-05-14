@@ -1,0 +1,9 @@
+{
+  "name": "auditsys",
+  "scripts": {
+    "frontend": "cd frontend-react && npm run dev -- --port 3000",
+    "meeting": "cd meeting && npm run dev -- --port 5173",
+    "dev": "concurrently \"npm run frontend\" \"npm run meeting\""
+  }
+}
+

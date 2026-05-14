@@ -11,8 +11,9 @@ import Search from './pages/Search.jsx'
 import Analytics from './pages/Analytics.jsx'
 import Profile from './pages/Profile.jsx'
 import Users from './pages/Users.jsx'
-import Lobby from './pages/Lobby.jsx'
-import Room from './pages/Room.jsx'
+import Meetings from './pages/Meetings.jsx'
+//import Lobby from './pages/Lobby.jsx'
+//import Room from './pages/Room.jsx'
 
 function ProtectedRoute({ children }) {
   const { token } = useAuth()
@@ -35,7 +36,9 @@ function AppRoutes() {
       <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
       <Route path="/users" element={<ProtectedRoute><Users /></ProtectedRoute>} />
       <Route path="*" element={<Navigate to="/" />} />
+      <Route path="/meetings" element={<ProtectedRoute><Meetings /></ProtectedRoute>} />
     </Routes>
+    
   )
 }
 

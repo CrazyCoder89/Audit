@@ -225,12 +225,17 @@ def update_task(
     if not task:
         raise HTTPException(status_code=404, detail="Task not found")
 
+    # Viewers can only update status of their own tasks
     if current_user.role not in ["admin", "auditor"]:
         if task.assigned_to != current_user.id:
             raise HTTPException(status_code=403, detail="Access denied")
-        if any([task_update.title, task_update.description,
-                task_update.priority, task_update.deadline, task_update.assigned_to]):
-            raise HTTPException(status_code=403, detail="Viewers can only update task status")
+        # Only allow status update for viewers
+        allowed = task_update.model_dump(exclude_unset=True)
+        if any(k for k in allowed if k != 'status'):
+            raise HTTPException(
+                status_code=403,
+                detail="Viewers can only update task status"
+            )
 
     old_status = task.status
     update_data = task_update.model_dump(exclude_unset=True)
@@ -250,10 +255,9 @@ def update_task(
         ip_address=request.client.host
     )
 
-    # Send status change notification in background
+    # Notifications
     new_status = task_update.status
     if new_status and new_status != old_status:
-        # Notify assignee
         if task.assigned_to:
             assignee = db.query(User).filter(User.id == task.assigned_to).first()
             if assignee:
@@ -266,7 +270,6 @@ def update_task(
                     new_status=new_status,
                     changed_by=current_user.full_name
                 )
-        # Also notify task creator if different from assignee
         if task.created_by != task.assigned_to:
             creator = db.query(User).filter(User.id == task.created_by).first()
             if creator:

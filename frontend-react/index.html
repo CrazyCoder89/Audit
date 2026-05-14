@@ -13,6 +13,29 @@
       ::-webkit-scrollbar-thumb { background: #1E2D4D; border-radius: 3px; }
       ::-webkit-scrollbar-thumb:hover { background: #00D4FF; }
     </style>
+    <style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: #0A0E1A; font-family: 'JetBrains Mono', monospace; }
+
+      /* Dark calendar fix */
+      input[type="datetime-local"],
+      input[type="date"],
+      input[type="time"] {
+        color-scheme: dark;
+        background: #0A0E1A !important;
+        color: #E2E8F0 !important;
+        border: 1px solid #1E2D4D !important;
+      }
+      input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+        filter: invert(1) brightness(0.6);
+        cursor: pointer;
+      }
+
+      ::-webkit-scrollbar { width: 6px; }
+      ::-webkit-scrollbar-track { background: #0A0E1A; }
+      ::-webkit-scrollbar-thumb { background: #1E2D4D; border-radius: 3px; }
+      ::-webkit-scrollbar-thumb:hover { background: #00D4FF; }
+    </style>
   </head>
   <body>
     <div id="root"></div>

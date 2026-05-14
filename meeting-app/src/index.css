@@ -1,0 +1,64 @@
+/* RESET */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* FULL SCREEN BASE */
+html, body, #root {
+  width: 100%;
+  height: 100%;
+  background: #0A0E1A;
+  font-family: monospace;
+  overflow: hidden;
+}
+
+/* REMOVE SCROLL GAP ISSUES */
+body {
+  line-height: 1.4;
+  color: #E2E8F0;
+}
+
+/* GLOBAL BUTTON RESET */
+button {
+  font-family: monospace;
+  outline: none;
+}
+
+/* INPUT RESET */
+input, textarea, select {
+  font-family: monospace;
+  outline: none;
+}
+
+/* LINKS */
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* FULLSCREEN FIX HELPERS */
+.fullscreen {
+  width: 100vw;
+  height: 100vh;
+}
+
+/* OPTIONAL: DARK SCROLLBAR (nice UI touch) */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0A0E1A;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #1E2D4D;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #00D4FF;
+}
+

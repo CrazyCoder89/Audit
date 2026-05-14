@@ -15,10 +15,18 @@ Base.metadata.create_all(bind=engine)
 app = FastAPI(title="AI Audit System", version="1.0.0")
 
 from fastapi.middleware.cors import CORSMiddleware
-
+"""
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:5173", "http://localhost:8501","http://localhost:3000"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+"""
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

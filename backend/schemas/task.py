@@ -34,6 +34,7 @@ class TaskUpdate(BaseModel):
     priority: Optional[TaskPriority] = None
     deadline: Optional[datetime] = None
     assigned_to: Optional[int] = None
+    document_id: Optional[int] = None
 
 # Returned in API responses
 class TaskResponse(BaseModel):
@@ -51,3 +52,4 @@ class TaskResponse(BaseModel):
 
     class Config:
         from_attributes = True
+        
