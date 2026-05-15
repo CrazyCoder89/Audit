@@ -33,7 +33,7 @@ export default function Meetings() {
       localStorage.setItem('auditsys_token', localStorage.getItem('token'))
       localStorage.setItem('auditsys_user', localStorage.getItem('user'))
       // Open meeting in new tab
-      window.open(`http://localhost:5173/room/${roomCode}`, '_blank')
+      window.open(`https://auditsys-meeting.vercel.app/room/${roomCode}`, '_blank')
       setTitle('')
       fetch()
     } catch (e) {
@@ -55,7 +55,7 @@ export default function Meetings() {
       }
       localStorage.setItem('auditsys_token', localStorage.getItem('token'))
       localStorage.setItem('auditsys_user', localStorage.getItem('user'))
-      window.open(`http://localhost:5173/room/${joinCode.toUpperCase()}`, '_blank')
+      window.open(`https://auditsys-meeting.vercel.app/room/${joinCode.toUpperCase()}`, '_blank')
       setJoinCode('')
     } catch {
       setMsg('✗ Meeting not found')
@@ -154,7 +154,7 @@ export default function Meetings() {
                   <button onClick={() => {
                     localStorage.setItem('auditsys_token', localStorage.getItem('token'))
                     localStorage.setItem('auditsys_user', localStorage.getItem('user'))
-                    window.open(`http://localhost:5173/room/${m.room_code}`, '_blank')
+                    window.open(`https://auditsys-meeting.vercel.app/room/${m.room_code}`, '_blank')
                   }} style={{
                     background: '#00D4FF22', color: '#00D4FF',
                     border: '1px solid #00D4FF44', borderRadius: 6,

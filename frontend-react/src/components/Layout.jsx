@@ -112,7 +112,7 @@ export default function Layout({ children }) {
           </div>
           <div
   onClick={() =>
-    window.open("http://localhost:5173", "_blank")
+    window.open("https://auditsys-meeting.vercel.app", "_blank")
   }
   style={{
     cursor: 'pointer'
