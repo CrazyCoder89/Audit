@@ -10,13 +10,12 @@ DATABASE_URL = os.getenv("DATABASE_URL")
 
 engine = create_engine(
     DATABASE_URL,
-    pool_pre_ping=True,      # 👈 checks dead connections
-    pool_recycle=300,        # 👈 refresh connection every 5 min
+    pool_pre_ping=True,
+    pool_recycle=120,
     pool_size=5,
     max_overflow=10,
-    connect_args={
-        "sslmode": "require"  # 👈 VERY IMPORTANT for Neon
-    }
+    connect_args={"sslmode": "require"},
+    echo=False
 )
 
 SessionLocal = sessionmaker(
@@ -33,4 +32,3 @@ def get_db():
         yield db
     finally:
         db.close()
-print("DATABASE_URL =", DATABASE_URL)

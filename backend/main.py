@@ -9,6 +9,10 @@ from tasks.weekly_report import start_scheduler
 from routes.report_routes import router as report_router
 from routes.analytics_routes import router as analytics_router
 from routes.meeting_routes import router as meeting_router
+from sqlalchemy.orm import Session
+from fastapi import Depends
+from sqlalchemy import text
+from database import get_db
 
 Base.metadata.create_all(bind=engine)
 
@@ -50,8 +54,11 @@ app.include_router(meeting_router)
 async def startup_event():
     start_scheduler()
 
-@app.get("/")
-def root():
-    return {"message": "AI Audit System is running"}
 
-
+@app.get("/db-check")
+def db_check(db: Session = Depends(get_db)):
+    try:
+        db.execute(text("SELECT 1"))
+        return {"status": "DB OK"}
+    except Exception as e:
+        return {"status": "DB FAIL", "error": str(e)}
