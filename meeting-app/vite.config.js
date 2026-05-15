@@ -5,7 +5,7 @@ export default defineConfig({
   plugins: [react()],
 
   define: {
-    global: 'window',
+    global: 'globalThis',
   },
 
   resolve: {
