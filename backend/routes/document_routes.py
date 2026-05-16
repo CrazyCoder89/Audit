@@ -1,6 +1,6 @@
 import os
 import uuid
-from backend.tasks.weekly_report import start_scheduler
+from tasks.weekly_report import start_scheduler
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, BackgroundTasks, Request
 from sqlalchemy.orm import Session
 from database import get_db

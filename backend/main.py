@@ -55,7 +55,31 @@ app.include_router(meeting_router)
 @app.on_event("startup")
 async def startup_event():
     start_scheduler()
-
+    import os
+    from database import SessionLocal
+    os.makedirs("uploads", exist_ok=True)
+    os.makedirs("vector_indexes", exist_ok=True)
+    os.makedirs("meeting_minutes", exist_ok=True)
+    db = SessionLocal()
+    try:
+        from models.document import Document
+        processed_docs = db.query(Document).filter(
+            Document.status == "processed",
+            Document.is_active == True
+        ).all()
+        reset_count = 0
+        for doc in processed_docs:
+            index_path = os.path.join("vector_indexes", str(doc.id), "faiss.index")
+            if not os.path.exists(index_path):
+                doc.status = "pending"
+                reset_count += 1
+        if reset_count > 0:
+            db.commit()
+            print(f"[STARTUP] Reset {reset_count} docs to pending — indexes lost on redeploy")
+    except Exception as e:
+        print(f"[STARTUP] Error: {e}")
+    finally:
+        db.close()
 
 @app.get("/db-check")
 def db_check(db: Session = Depends(get_db)):
@@ -71,4 +95,5 @@ def root():
 
 print(f"[STARTUP] uploads/ exists: {os.path.exists('uploads')}")
 print(f"[STARTUP] vector_indexes/ exists: {os.path.exists('vector_indexes')}")
+
 
