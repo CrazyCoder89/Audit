@@ -19,35 +19,37 @@ export function AuthProvider({ children }) {
     const res = await axios.post(
       `${API}/auth/login`,
       {
-        email,
-        password
-      }
-    )
-
-    const t = res.data.access_token
-
-    const me = await axios.get(
-      `${API}/auth/me`,
+        email: email,
+        password: password
+      },
       {
         headers: {
-          Authorization: `Bearer ${t}`
+          'Content-Type': 'application/json'
         }
       }
     )
 
-    localStorage.setItem('token', t)
+    const token = res.data.access_token
+
+    const me = await axios.get(`${API}/auth/me`, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    })
+
+    localStorage.setItem('token', token)
     localStorage.setItem('user', JSON.stringify(me.data))
 
-    setToken(t)
+    setToken(token)
     setUser(me.data)
 
     setLoading(false)
-
     return { success: true }
 
   } catch (e) {
-
     setLoading(false)
+
+    console.log("LOGIN ERROR:", e.response?.data)
 
     return {
       success: false,
