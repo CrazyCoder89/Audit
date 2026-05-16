@@ -93,10 +93,15 @@ def chunk_pages(pages: list[dict]) -> list[dict]:
 
     print(f"Total chunks created: {len(all_chunks)}")
     return all_chunks
-
+def chunk_documents(pages: list[dict]) -> list[dict]:
+    """
+    Compatibility wrapper for older imports.
+    Internally uses chunk_pages().
+    """
+    return chunk_pages(pages)
 
 # --------------------------------------------------
-# TEST: Run this file directly to test it
+# TEST: For Testing the chunker independently.
 # --------------------------------------------------
 
 if __name__ == "__main__":
@@ -119,3 +124,6 @@ if __name__ == "__main__":
         print(f"Text       : {chunk['text'][:200]}")
         print(f"Length     : {len(chunk['text'])} characters")
         print("-" * 40)
+
+
+
