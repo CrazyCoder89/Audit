@@ -24,7 +24,6 @@ export default function Layout({ children }) {
     { path: '/ask-ai', icon: <MessageSquare size={16} />, label: 'Ask AI', roles: ['admin','auditor','viewer'] },
     { path: '/tasks', icon: <CheckSquare size={16} />, label: 'Tasks', roles: ['admin','auditor','viewer'] },
     { path: '/search', icon: <Search size={16} />, label: 'Search', roles: ['admin','auditor','viewer'] },
-    { path: '/meetings', icon: <Video size={16} />, label: 'Meetings', roles: ['admin','auditor','viewer','guest'] },
     { path: '/audit-logs', icon: <Shield size={16} />, label: 'Audit Logs', roles: ['admin','auditor'] },
     { path: '/analytics', icon: <BarChart2 size={16} />, label: 'Analytics', roles: ['admin','auditor'] },
     { path: '/profile', icon: <User size={16} />, label: 'My Profile', roles: ['admin','auditor','viewer','guest'] },
@@ -107,24 +106,41 @@ export default function Layout({ children }) {
             ))}
 
           {/* Meeting link */}
-          <div style={{ fontSize: '0.6rem', color: '#4A5568', letterSpacing: 3, padding: '12px 16px 8px' }}>
+          <div
+            style={{ fontSize: '0.6rem', color: '#4A5568', letterSpacing: 3, padding: '12px 16px 8px' }}>
             TOOLS
           </div>
           <div
-  onClick={() =>
-    window.open("https://auditsys-meeting.vercel.app", "_blank")
-  }
-  style={{
-    cursor: 'pointer'
-  }}
->
-   🎥 Meetings
-</div>
+            onClick={() =>
+              window.open("https://auditsys-meeting.vercel.app", "_blank")
+            }
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 10,
+              padding: '9px 16px',
+              cursor: 'pointer',
+              fontSize: '0.78rem',
+              color: '#4A5568',
+              background: 'transparent',
+              borderLeft: '2px solid transparent',
+              transition: 'all 0.15s'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = '#0F1628'
+              e.currentTarget.style.color = '#00D4FF'
+              e.currentTarget.style.borderLeft = '2px solid #00D4FF'
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = 'transparent'
+              e.currentTarget.style.color = '#4A5568'
+              e.currentTarget.style.borderLeft = '2px solid transparent'
+            }}
+          >
+            <span>🎥</span>
+            <span>Meetings</span>
+          </div>
         </div>
-
-        <button style={s.logoutBtn} onClick={logout}>
-          <LogOut size={14} /> LOGOUT
-        </button>
       </div>
 
       {/* Main content */}
