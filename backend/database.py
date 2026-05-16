@@ -8,13 +8,13 @@ load_dotenv()
 
 DATABASE_URL = os.getenv("DATABASE_URL")
 
+# Fix for Neon PostgreSQL — sslmode already in URL
 engine = create_engine(
     DATABASE_URL,
     pool_pre_ping=True,
     pool_recycle=120,
-    pool_size=5,
-    max_overflow=10,
-    connect_args={"sslmode": "require"},
+    pool_size=3,
+    max_overflow=5,
     echo=False
 )
 
@@ -32,3 +32,4 @@ def get_db():
         yield db
     finally:
         db.close()
+

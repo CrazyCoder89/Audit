@@ -62,3 +62,7 @@ def db_check(db: Session = Depends(get_db)):
         return {"status": "DB OK"}
     except Exception as e:
         return {"status": "DB FAIL", "error": str(e)}
+    
+@app.get("/")
+def root():
+    return {"message": "AuditSys API is running", "status": "ok", "version": "1.0.0"}
