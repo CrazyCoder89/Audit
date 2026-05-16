@@ -59,9 +59,11 @@ def embed_chunks(chunks: list[dict]) -> list[dict]:
     print(f"Done! Each chunk now has a vector of {len(embeddings[0])} numbers")
     return chunks
 
+def get_embeddings(text: str):
+    return embed_text(text)
 
 # --------------------------------------------------
-# TEST: Run this file directly to test it
+# TEST: For testing the embedder independently.
 # --------------------------------------------------
 
 if __name__ == "__main__":
@@ -87,3 +89,6 @@ if __name__ == "__main__":
     print(f"Text      : {first_chunk['text'][:100]}")
     print(f"Embedding shape : {first_chunk['embedding'].shape}")
     print(f"First 5 numbers : {first_chunk['embedding'][:5]}")
+
+
+
