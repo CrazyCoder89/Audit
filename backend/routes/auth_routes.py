@@ -8,7 +8,7 @@ from schemas.user import (UserCreate, UserResponse, Token, UserUpdate,
 from auth.auth_handler import hash_password, verify_password, create_access_token
 from auth.dependencies import get_current_user, require_admin
 from services.audit_services import log_action
-
+from pydantic import BaseModel
 router = APIRouter(prefix="/auth", tags=["Authentication"])
 
 
@@ -37,26 +37,31 @@ def register(user_data: UserCreate, request: Request,
                ip_address=request.client.host)
     return new_user
 
-
+class LoginRequest(BaseModel):
+    email: str
+    password: str
 @router.post("/login", response_model=Token)
-def login(request: Request,
-          form_data: OAuth2PasswordRequestForm = Depends(),
-          db: Session = Depends(get_db)):
-    user = db.query(User).filter(User.email == form_data.username).first()
-    if not user or not verify_password(form_data.password, user.hashed_password):
-        log_action(db=db, action="user.login_failed",
-                   details={"email": form_data.username},
-                   ip_address=request.client.host)
+def login(
+    request: Request,
+    data: LoginRequest,
+    db: Session = Depends(get_db)
+):
+    user = db.query(User).filter(User.email == data.email).first()
+
+    if not user or not verify_password(data.password, user.hashed_password):
         raise HTTPException(status_code=401, detail="Invalid credentials")
 
     if not user.is_active:
-        raise HTTPException(status_code=403, detail="Account is deactivated. Contact admin.")
+        raise HTTPException(status_code=403, detail="Account deactivated")
 
-    token = create_access_token(data={"sub": user.email, "role": user.role})
-    log_action(db=db, action="user.login", user_id=user.id,
-               resource_type="user", resource_id=user.id,
-               details={"email": user.email}, ip_address=request.client.host)
-    return {"access_token": token, "token_type": "bearer"}
+    token = create_access_token(
+        data={"sub": user.email, "role": user.role}
+    )
+
+    return {
+        "access_token": token,
+        "token_type": "bearer"
+    }
 
 
 @router.get("/me", response_model=UserResponse)

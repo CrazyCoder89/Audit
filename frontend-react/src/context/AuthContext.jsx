@@ -13,26 +13,48 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(false)
 
   const login = async (email, password) => {
-    setLoading(true)
-    try {
-      const res = await axios.post(`${API}/auth/login`,
-        new URLSearchParams({ username: email, password }),
-        { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
-      )
-      const t = res.data.access_token
-      const me = await axios.get(`${API}/auth/me`,
-        { headers: { Authorization: `Bearer ${t}` } })
-      localStorage.setItem('token', t)
-      localStorage.setItem('user', JSON.stringify(me.data))
-      setToken(t)
-      setUser(me.data)
-      setLoading(false)
-      return { success: true }
-    } catch (e) {
-      setLoading(false)
-      return { success: false, error: e.response?.data?.detail || 'Login failed' }
+  setLoading(true)
+
+  try {
+    const res = await axios.post(
+      `${API}/auth/login`,
+      {
+        email,
+        password
+      }
+    )
+
+    const t = res.data.access_token
+
+    const me = await axios.get(
+      `${API}/auth/me`,
+      {
+        headers: {
+          Authorization: `Bearer ${t}`
+        }
+      }
+    )
+
+    localStorage.setItem('token', t)
+    localStorage.setItem('user', JSON.stringify(me.data))
+
+    setToken(t)
+    setUser(me.data)
+
+    setLoading(false)
+
+    return { success: true }
+
+  } catch (e) {
+
+    setLoading(false)
+
+    return {
+      success: false,
+      error: e.response?.data?.detail || 'Login failed'
     }
   }
+}
 
   const logout = () => {
     localStorage.clear()
