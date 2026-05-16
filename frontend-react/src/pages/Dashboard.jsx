@@ -49,18 +49,41 @@ export default function Dashboard() {
 
   const downloadReport = async () => {
   try {
-    const res = await axios.get('${BASE}/reports/compliance',
-      { headers: authHeaders(), responseType: 'blob' }
+    const res = await axios.get(
+      `${BASE}/reports/compliance`,
+      {
+        headers: authHeaders(),
+        responseType: 'blob'
+      }
     )
-    const url = URL.createObjectURL(res.data)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = `compliance_report_${new Date().toISOString().slice(0,10)}.pdf`
-    a.click()
-    URL.revokeObjectURL(url)
+
+    // Create PDF blob
+    const file = new Blob([res.data], {
+      type: 'application/pdf'
+    })
+
+    // Create download link
+    const fileURL = URL.createObjectURL(file)
+
+    const link = document.createElement('a')
+    link.href = fileURL
+    link.download = `compliance_report_${new Date()
+      .toISOString()
+      .slice(0, 10)}.pdf`
+
+    document.body.appendChild(link)
+    link.click()
+
+    // Cleanup
+    document.body.removeChild(link)
+    URL.revokeObjectURL(fileURL)
+
   } catch (e) {
     console.error('Report generation failed', e)
-    alert('Failed to generate report. Make sure you are logged in as Admin or Auditor.')
+
+    alert(
+      'Failed to generate report. Make sure you are logged in as Admin or Auditor.'
+    )
   }
 }
   useEffect(() => { fetchAll() }, [])

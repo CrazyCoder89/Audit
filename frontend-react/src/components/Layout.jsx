@@ -141,6 +141,9 @@ export default function Layout({ children }) {
             <span>Meetings</span>
           </div>
         </div>
+        <button style={s.logoutBtn} onClick={logout}>
+          <LogOut size={14} /> LOGOUT
+        </button>
       </div>
 
       {/* Main content */}
