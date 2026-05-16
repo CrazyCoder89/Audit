@@ -1,8 +1,9 @@
 import { createContext, useContext, useState, useEffect } from 'react'
 import axios from 'axios'
+export const API = import.meta.env.VITE_API_URL || 'http://localhost:8000'
 
 const AuthContext = createContext(null)
-export const API = 'http://localhost:8000'
+
 
 export function AuthProvider({ children }) {
   const [token, setToken] = useState(localStorage.getItem('token') || null)
@@ -12,26 +13,48 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(false)
 
   const login = async (email, password) => {
-    setLoading(true)
-    try {
-      const res = await axios.post(`${API}/auth/login`,
-        new URLSearchParams({ username: email, password }),
-        { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
-      )
-      const t = res.data.access_token
-      const me = await axios.get(`${API}/auth/me`,
-        { headers: { Authorization: `Bearer ${t}` } })
-      localStorage.setItem('token', t)
-      localStorage.setItem('user', JSON.stringify(me.data))
-      setToken(t)
-      setUser(me.data)
-      setLoading(false)
-      return { success: true }
-    } catch (e) {
-      setLoading(false)
-      return { success: false, error: e.response?.data?.detail || 'Login failed' }
+  setLoading(true)
+
+  try {
+    const res = await axios.post(
+      `${API}/auth/login`,
+      {
+        email,
+        password
+      }
+    )
+
+    const t = res.data.access_token
+
+    const me = await axios.get(
+      `${API}/auth/me`,
+      {
+        headers: {
+          Authorization: `Bearer ${t}`
+        }
+      }
+    )
+
+    localStorage.setItem('token', t)
+    localStorage.setItem('user', JSON.stringify(me.data))
+
+    setToken(t)
+    setUser(me.data)
+
+    setLoading(false)
+
+    return { success: true }
+
+  } catch (e) {
+
+    setLoading(false)
+
+    return {
+      success: false,
+      error: e.response?.data?.detail || 'Login failed'
     }
   }
+}
 
   const logout = () => {
     localStorage.clear()
@@ -94,6 +117,3 @@ export function AuthProvider({ children }) {
 }
 
 export const useAuth = () => useContext(AuthContext)
-
-
-

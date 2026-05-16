@@ -36,7 +36,7 @@ export default function Documents() {
     const form = new FormData()
     form.append('file', file)
     try {
-      await axios.post('${BASE}/documents/upload', form,
+      await axios.post(`${BASE}/documents/upload`, form,
         { headers: { ...authHeaders(), 'Content-Type': 'multipart/form-data' } })
       setMsg('✓ Uploaded — processing in background')
       fetch()
