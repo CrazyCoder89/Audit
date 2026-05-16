@@ -59,8 +59,6 @@ def embed_chunks(chunks: list[dict]) -> list[dict]:
     print(f"Done! Each chunk now has a vector of {len(embeddings[0])} numbers")
     return chunks
 
-def get_embeddings(text: str):
-    return embed_text(text)
 
 # --------------------------------------------------
 # TEST: For testing the embedder independently.

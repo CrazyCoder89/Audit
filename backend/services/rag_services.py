@@ -7,19 +7,22 @@ import sys
 import os
 
 # Add the ai_engine folder to Python path so we can import from it
-AI_ENGINE_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "ai_engine")
-sys.path.insert(0, AI_ENGINE_PATH)
+# ai_engine is inside backend/ folder on Render
+BACKEND_PATH = os.path.dirname(os.path.dirname(__file__))
+sys.path.insert(0, BACKEND_PATH)
 
 try:
-    from ai_engine.retrieval.vector_store import VectorStore
+    from ai_engine.embeddings.embeddings import embed_text, embed_chunks
     from ai_engine.ingestion.pdf_loader import load_pdf
-    from ai_engine.ingestion.chunker import chunk_documents
-    from ai_engine.embeddings.embeddings import get_embeddings
+    from ai_engine.ingestion.chunker import chunk_pages
+    from ai_engine.retrieval.vector_store import VectorStore
     from ai_engine.rag.pipeline import generate_answer
     RAG_AVAILABLE = True
+    print("[RAG] Available and ready")
 except Exception as e:
     print(f"[RAG] Not available: {e}")
     RAG_AVAILABLE = False
+
 
 """from ingestion.pdf_loader import load_pdf
 from ingestion.chunker import chunk_pages

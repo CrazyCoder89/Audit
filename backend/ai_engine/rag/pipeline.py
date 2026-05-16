@@ -9,8 +9,13 @@
 import sys
 import os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+import os
+from groq import Groq
+from dotenv import load_dotenv
 
-import ollama
+load_dotenv()
+
+groq_client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 from config import LLM_MODEL, LLM_TEMPERATURE, TOP_K_RESULTS
 
 
@@ -65,57 +70,56 @@ ANSWER:"""
 
 def generate_answer(question: str, retrieved_chunks: list) -> dict:
     """
-    Main RAG function - generates an answer using retrieved context.
-    
-    Args:
-        question: user's question
-        retrieved_chunks: list of (chunk, distance) tuples from FAISS
-        
-    Returns:
-        Dictionary with answer and sources
+    Generate an answer using Groq LLM based on retrieved chunks.
     """
-    print(f"\nGenerating answer for: '{question}'")
-    
+    if not retrieved_chunks:
+        return {
+            "answer": "No relevant information found in the document.",
+            "sources": []
+        }
+
     # Build context from retrieved chunks
-    context = build_context(retrieved_chunks)
-    
-    # Create the full prompt
-    prompt = create_prompt(question, context)
-    
-    print("\n--- Calling LLM ---")
-    
-    # Call Ollama API
-    response = ollama.chat(
-        model=LLM_MODEL,
-        messages=[
-            {
-                'role': 'user',
-                'content': prompt
-            }
-        ],
-        options={
-            'temperature': LLM_TEMPERATURE,
-        }
-    )
-    
-    # Extract the answer
-    answer = response['message']['content']
-    
-    # Extract sources from retrieved chunks
+    context_parts = []
     sources = []
-    for chunk, distance in retrieved_chunks:
-        source_info = {
-            'source': chunk['source'],
-            'page': chunk['page_number'],
-            'relevance': round(1 / (1 + distance), 2)  # Convert distance to relevance score
+
+    for i, (chunk, score) in enumerate(retrieved_chunks):
+        context_parts.append(
+            f"[Source {i+1}] Page {chunk.get('page_number', '?')}:\n{chunk['text']}"
+        )
+        sources.append({
+            "source": chunk.get("source", "document"),
+            "page": chunk.get("page_number", 0),
+            "relevance": float(1 / (1 + score)) if score else 0.9,
+            "text_preview": chunk["text"][:150]
+        })
+
+    context = "\n\n".join(context_parts)
+
+    prompt = f"""You are an expert compliance and audit assistant. 
+Answer the question based ONLY on the provided document context.
+If the answer is not in the context, say so clearly.
+
+DOCUMENT CONTEXT:
+{context}
+
+QUESTION: {question}
+
+Provide a clear, accurate, and professional answer based on the document."""
+
+    try:
+        response = groq_client.chat.completions.create(
+            model="llama-3.3-70b-versatile",
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0.2,
+            max_tokens=1024
+        )
+        answer = response.choices[0].message.content
+        return {"answer": answer, "sources": sources}
+    except Exception as e:
+        return {
+            "answer": f"Error generating answer: {str(e)}",
+            "sources": sources
         }
-        if source_info not in sources:
-            sources.append(source_info)
-    
-    return {
-        'answer': answer,
-        'sources': sources
-    }
 
 # --------------------------------------------------
 # TEST: Full end-to-end RAG pipeline
