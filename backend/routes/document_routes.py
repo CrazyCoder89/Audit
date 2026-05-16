@@ -1,5 +1,6 @@
 import os
 import uuid
+from backend.tasks.weekly_report import start_scheduler
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, BackgroundTasks, Request
 from sqlalchemy.orm import Session
 from database import get_db
@@ -297,3 +298,29 @@ def download_document(
         media_type="application/pdf"
     )
 
+@app.on_event("startup")
+async def startup_event():
+    start_scheduler()
+    # Check for missing indexes and reset status
+    from database import SessionLocal
+    from models.document import Document
+    db = SessionLocal()
+    try:
+        processed_docs = db.query(Document).filter(
+            Document.status == "processed",
+            Document.is_active == True
+        ).all()
+        reset_count = 0
+        for doc in processed_docs:
+            index_path = os.path.join("vector_indexes", str(doc.id), "faiss.index")
+            if not os.path.exists(index_path):
+                doc.status = "pending"
+                reset_count += 1
+        if reset_count > 0:
+            db.commit()
+            print(f"[STARTUP] Reset {reset_count} documents to pending — indexes lost on redeploy")
+    except Exception as e:
+        print(f"[STARTUP] Error checking indexes: {e}")
+    finally:
+        db.close()
+        

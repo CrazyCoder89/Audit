@@ -94,47 +94,49 @@ def process_document(file_path: str, document_id: int) -> dict:
 
 def ask_document(document_id: int, question: str) -> dict:
     if not RAG_AVAILABLE:
-        return {"answer": "AI engine not available on this deployment.", "sources": []}
-    """
-    Answers a question about a specific document using its saved FAISS index.
-
-    Args:
-        document_id: which document to query
-        question: the user's question
-
-    Returns:
-        dict with answer and sources
-    """
+        return {"answer": "AI engine not available.", "sources": []}
     try:
-        # Load the saved FAISS index for this document
         index_path = get_index_path(document_id)
         faiss_file = os.path.join(index_path, "faiss.index")
         chunks_file = os.path.join(index_path, "chunks.pkl")
 
+        # If index missing — try to reprocess from uploaded file
         if not os.path.exists(faiss_file):
-            return {
-                "answer": "This document has not been processed yet. Please wait or re-upload it.",
-                "sources": []
-            }
+            print(f"[ASK] Index missing for doc {document_id}, attempting reprocess...")
+            from database import SessionLocal
+            from models.document import Document
+            db = SessionLocal()
+            try:
+                doc = db.query(Document).filter(Document.id == document_id).first()
+                if doc and os.path.exists(doc.file_path):
+                    result = process_document(doc.file_path, document_id)
+                    if result.get("status") != "success":
+                        return {
+                            "answer": "Document index was lost and reprocessing failed. Please re-upload the document.",
+                            "sources": []
+                        }
+                else:
+                    return {
+                        "answer": "Document file not found on server. Please re-upload the document.",
+                        "sources": []
+                    }
+            finally:
+                db.close()
 
         import faiss
         import pickle
         import numpy as np
-        from config import TOP_K_RESULTS, EMBEDDING_DIM
+        from ai_engine.config import TOP_K_RESULTS
 
-        # Load index
         index = faiss.read_index(faiss_file)
         with open(chunks_file, "rb") as f:
             chunks = pickle.load(f)
 
-        # Embed the question
         query_embedding = embed_text(question)
         query_vector = np.array([query_embedding]).astype('float32')
 
-        # Search FAISS
         distances, indices = index.search(query_vector, TOP_K_RESULTS)
 
-        # Build retrieved chunks list
         retrieved_chunks = []
         for i, idx in enumerate(indices[0]):
             if idx < len(chunks):
@@ -142,21 +144,21 @@ def ask_document(document_id: int, question: str) -> dict:
 
         if not retrieved_chunks:
             return {
-                "answer": "No relevant content found in this document for your question.",
+                "answer": "No relevant content found for your question.",
                 "sources": []
             }
 
-        # Generate answer using your existing pipeline
         result = generate_answer(question, retrieved_chunks)
-        # Convert numpy floats to Python floats so FastAPI can serialize them
         for source in result.get("sources", []):
             source["relevance"] = float(source["relevance"])
 
         return result
 
     except Exception as e:
+        print(f"[ASK ERROR] {e}")
+        import traceback
+        traceback.print_exc()
         return {
-            "answer": f"Error processing your question: {str(e)}",
+            "answer": f"Error: {str(e)}",
             "sources": []
         }
-

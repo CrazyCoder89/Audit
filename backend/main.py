@@ -1,3 +1,5 @@
+import os
+
 from fastapi import FastAPI
 from database import engine, Base
 from routes.auth_routes import router as auth_router
@@ -66,3 +68,7 @@ def db_check(db: Session = Depends(get_db)):
 @app.get("/")
 def root():
     return {"message": "AuditSys API is running", "status": "ok", "version": "1.0.0"}
+
+print(f"[STARTUP] uploads/ exists: {os.path.exists('uploads')}")
+print(f"[STARTUP] vector_indexes/ exists: {os.path.exists('vector_indexes')}")
+

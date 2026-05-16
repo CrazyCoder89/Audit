@@ -17,17 +17,14 @@ export function AuthProvider({ children }) {
 
   try {
     const res = await axios.post(
-      `${API}/auth/login`,
-      {
-        email: email,      
-        password: password
-      },
-      {
-        headers: {
-          "Content-Type": "application/json"
-        }
-      }
-    )
+  `${API}/auth/login`,
+  new URLSearchParams({ username: email, password }),
+  {
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded'
+    }
+  }
+)
 
     const t = res.data.access_token
 
