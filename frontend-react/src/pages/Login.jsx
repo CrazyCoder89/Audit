@@ -17,7 +17,7 @@ export default function Login() {
   const [regError, setRegError] = useState('')
   const [regSuccess, setRegSuccess] = useState('')
   const [showPassword, setShowPassword] = useState(false)
-
+const API = import.meta.env.VITE_API_URL || 'http://localhost:8000'
   const handleLogin = async () => {
     if (!email || !password) { setError('Enter credentials'); return }
     setError('')
@@ -33,7 +33,7 @@ export default function Login() {
       setRegError('Fill in all required fields'); return
     }
     try {
-      const res = await fetch('http://localhost:8000/auth/register', {
+      const res = await fetch(`${API}/auth/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(regData)
