@@ -4,7 +4,6 @@ import axios from 'axios'
 const API = import.meta.env.VITE_API_URL || 'http://localhost:8000'
 const WS_BASE = import.meta.env.VITE_WS_URL || 'ws://localhost:8000'
 
-
 export default function Lobby() {
   const navigate = useNavigate()
   const [token, setToken] = useState('')
@@ -29,27 +28,36 @@ export default function Lobby() {
     }
   }, [])
 
-  const login = async () => {
-    setError('')
+  const login = async (emailVal, passwordVal) => {
     setLoading(true)
+    setError('')
     try {
-      const res = await axios.post(`${API}/auth/login`,
-        new URLSearchParams({ username: email, password }),
-        { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
+      const res = await axios.post(
+        `${API}/auth/login`,
+        { email: emailVal, password: passwordVal },
+        { headers: { 'Content-Type': 'application/json' } }
       )
       const t = res.data.access_token
-      const me = await axios.get(`${API}/auth/me`,
-        { headers: { Authorization: `Bearer ${t}` } })
+      const me = await axios.get(`${API}/auth/me`, {
+        headers: { Authorization: `Bearer ${t}` }
+      })
+
+      // ✅ Fixed: use auditsys_ prefix keys
       localStorage.setItem('auditsys_token', t)
       localStorage.setItem('auditsys_user', JSON.stringify(me.data))
+
       setToken(t)
       setUser(me.data)
       setLoggedIn(true)
       fetchMeetings(t)
-    } catch {
-      setError('Invalid credentials')
+      setLoading(false)
+      return { success: true }
+    } catch (e) {
+      setLoading(false)
+      const errMsg = e.response?.data?.detail || 'Invalid credentials'
+      setError(errMsg)
+      return { success: false, error: errMsg }
     }
-    setLoading(false)
   }
 
   const fetchMeetings = async (t) => {
@@ -63,6 +71,7 @@ export default function Lobby() {
   const createMeeting = async () => {
     if (!meetingTitle.trim()) return
     setLoading(true)
+    setError('')
     try {
       const res = await axios.post(`${API}/meetings/`,
         { title: meetingTitle },
@@ -71,8 +80,12 @@ export default function Lobby() {
       navigate(`/room/${res.data.room_code}`, {
         state: { token, user, meetingId: res.data.id }
       })
-    } catch {
-      setError('Failed to create meeting')
+    } catch (e) {
+      if (e.response?.status === 401) {
+        setError('Session expired. Please log out and log in again.')
+      } else {
+        setError('Failed to create meeting. Try again.')
+      }
     }
     setLoading(false)
   }
@@ -83,12 +96,10 @@ export default function Lobby() {
     try {
       const res = await axios.get(`${API}/meetings/${joinCode.toUpperCase()}`,
         { headers: { Authorization: `Bearer ${token}` } })
-
       if (res.data.status === 'ended') {
         setError('This meeting has already ended and cannot be joined.')
         return
       }
-
       navigate(`/room/${joinCode.toUpperCase()}`, {
         state: { token, user, meetingId: res.data.id }
       })
@@ -102,9 +113,9 @@ export default function Lobby() {
     setLoggedIn(false)
     setToken('')
     setUser(null)
+    setError('')
   }
 
-  // ── Styles ──────────────────────────────────────────────────────────────
   const styles = {
     app: {
       minHeight: '100vh', background: '#0A0E1A', color: '#E2E8F0',
@@ -165,15 +176,28 @@ export default function Lobby() {
           </div>
           <div style={{ ...styles.card, maxWidth: 400, margin: '0 auto', borderTop: '3px solid #00D4FF' }}>
             <span style={styles.label}>EMAIL</span>
-            <input style={styles.input} type="email" placeholder="your@email.com"
-              value={email} onChange={e => setEmail(e.target.value)} />
+            <input
+              style={styles.input}
+              type="email"
+              placeholder="your@email.com"
+              value={email}
+              onChange={e => setEmail(e.target.value)}
+              onKeyDown={e => e.key === 'Enter' && login(email, password)}
+            />
             <span style={styles.label}>PASSWORD</span>
-            <input style={styles.input} type="password" placeholder="••••••••"
-              value={password} onChange={e => setPassword(e.target.value)}
-              onKeyDown={e => e.key === 'Enter' && login()} />
-            {error && <div style={styles.error}>{error}</div>}
-            <button style={{ ...styles.btn, width: '100%' }}
-              onClick={login} disabled={loading}>
+            <input
+              style={styles.input}
+              type="password"
+              placeholder="••••••••"
+              value={password}
+              onChange={e => setPassword(e.target.value)}
+              onKeyDown={e => e.key === 'Enter' && login(email, password)}
+            />
+            {error && <div style={styles.error}>✗ {error}</div>}
+            <button
+              style={{ ...styles.btn, width: '100%' }}
+              onClick={() => login(email, password)}
+              disabled={loading}>
               {loading ? 'SIGNING IN...' : 'SIGN IN →'}
             </button>
           </div>
@@ -201,12 +225,18 @@ export default function Lobby() {
           <div style={{ ...styles.card, borderTop: '3px solid #00D4FF' }}>
             <div style={{ ...styles.label, marginBottom: 16 }}>✚ CREATE NEW MEETING</div>
             <span style={styles.label}>MEETING TITLE</span>
-            <input style={styles.input} placeholder="e.g. Q3 Compliance Review"
-              value={meetingTitle} onChange={e => setMeetingTitle(e.target.value)}
-              onKeyDown={e => e.key === 'Enter' && createMeeting()} />
-            {error && <div style={styles.error}>{error}</div>}
-            <button style={{ ...styles.btn, width: '100%' }}
-              onClick={createMeeting} disabled={loading}>
+            <input
+              style={styles.input}
+              placeholder="e.g. Q3 Compliance Review"
+              value={meetingTitle}
+              onChange={e => setMeetingTitle(e.target.value)}
+              onKeyDown={e => e.key === 'Enter' && createMeeting()}
+            />
+            {error && <div style={styles.error}>✗ {error}</div>}
+            <button
+              style={{ ...styles.btn, width: '100%' }}
+              onClick={createMeeting}
+              disabled={loading}>
               {loading ? 'CREATING...' : '⚡ START MEETING →'}
             </button>
           </div>
@@ -215,10 +245,15 @@ export default function Lobby() {
           <div style={{ ...styles.card, borderTop: '3px solid #48BB78' }}>
             <div style={{ ...styles.label, marginBottom: 16 }}>◈ JOIN EXISTING MEETING</div>
             <span style={styles.label}>ROOM CODE</span>
-            <input style={styles.input} placeholder="e.g. A1B2C3D4"
-              value={joinCode} onChange={e => setJoinCode(e.target.value.toUpperCase())}
-              onKeyDown={e => e.key === 'Enter' && joinMeeting()} />
-            <button style={{ ...styles.btn, width: '100%', background: 'linear-gradient(135deg, #48BB78, #2D8A50)' }}
+            <input
+              style={styles.input}
+              placeholder="e.g. A1B2C3D4"
+              value={joinCode}
+              onChange={e => setJoinCode(e.target.value.toUpperCase())}
+              onKeyDown={e => e.key === 'Enter' && joinMeeting()}
+            />
+            <button
+              style={{ ...styles.btn, width: '100%', background: 'linear-gradient(135deg, #48BB78, #2D8A50)' }}
               onClick={joinMeeting}>
               JOIN MEETING →
             </button>
@@ -245,20 +280,20 @@ export default function Lobby() {
                 </div>
               </div>
               {m.status !== 'ended' ? (
-                    <button style={styles.btn} onClick={() =>
-                    navigate(`/room/${m.room_code}`, {
-                        state: { token, user, meetingId: m.id }
-      })}>
-      JOIN
-    </button>
-  ) : (
-    <span style={{
-      color: '#718096', fontSize: 11, fontFamily: 'monospace',
-      background: '#1E2D4D', padding: '4px 10px', borderRadius: 4
-    }}>
-      ENDED
-    </span>
-  )}
+                <button style={styles.btn} onClick={() =>
+                  navigate(`/room/${m.room_code}`, {
+                    state: { token, user, meetingId: m.id }
+                  })}>
+                  JOIN
+                </button>
+              ) : (
+                <span style={{
+                  color: '#718096', fontSize: 11, fontFamily: 'monospace',
+                  background: '#1E2D4D', padding: '4px 10px', borderRadius: 4
+                }}>
+                  ENDED
+                </span>
+              )}
             </div>
           ))}
         </div>

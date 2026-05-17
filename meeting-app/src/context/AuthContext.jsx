@@ -17,14 +17,17 @@ export function AuthProvider({ children }) {
 
   try {
     const res = await axios.post(
-  `${API}/auth/login`,
-  new URLSearchParams({ username: email, password }),
-  {
-    headers: {
-      'Content-Type': 'application/x-www-form-urlencoded'
-    }
-  }
-)
+      `${API}/auth/login`,
+      {
+        email: email,
+        password: password
+      },
+      {
+        headers: {
+          "Content-Type": "application/json"
+        }
+      }
+    )
 
     const t = res.data.access_token
 
@@ -113,3 +116,4 @@ export function AuthProvider({ children }) {
 }
 
 export const useAuth = () => useContext(AuthContext)
+
