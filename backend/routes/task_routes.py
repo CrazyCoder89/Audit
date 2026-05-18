@@ -25,7 +25,7 @@ from services.notification_service import (
 from datetime import datetime, timezone
 from typing import Optional
 from fastapi import Query
-
+from fastapi.encoders import jsonable_encoder
 router = APIRouter(prefix="/tasks", tags=["Tasks"])
 
 
@@ -251,7 +251,7 @@ def update_task(
         user_id=current_user.id,
         resource_type="task",
         resource_id=task_id,
-        details=update_data,
+        details=jsonable_encoder(update_data),
         ip_address=request.client.host
     )
 
